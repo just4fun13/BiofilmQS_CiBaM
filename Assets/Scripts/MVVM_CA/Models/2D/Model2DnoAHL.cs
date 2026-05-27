@@ -333,7 +333,6 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
             {
                 if (Cells2D[cellPos.x, cellPos.y] == CellState.busyCanDiv && Bacteria2D[cellPos.x, cellPos.y] < ConcToDivide)
                     ConsumeSubstrateAndProduceAHL(cellPos);
-                Bacteria2D[cellPos.x, cellPos.y] -= LifetimeCost;
                 if (Bacteria2D[cellPos.x, cellPos.y] > ConcToDivide)
                     TryDivide(cellPos);
             }

@@ -22,6 +22,8 @@ namespace Assets.Scripts.MVVM_CA
         [SerializeField] private TMP_Text timeText;
         [SerializeField] private TMP_InputField totalHoursText;
         [SerializeField] private TMP_InputField randomSeedText;
+
+        
         public enum InputType { _2d, _3d}
 
         private InputType inputType;
@@ -29,6 +31,9 @@ namespace Assets.Scripts.MVVM_CA
         private int Scale = 4;
 
         public float DeltaTimeValue => timeSlider.value;
+
+        public bool ShowLog = false;
+
 
         public float TotalHours => float.Parse(totalHoursText.text);
         private string InputData => inputType == InputType._2d ? inputsData : inputsData3d;
@@ -40,7 +45,13 @@ namespace Assets.Scripts.MVVM_CA
         public Vector3Int GetSize3 => new Vector3Int(int.Parse(sizeTexts[0].text), int.Parse(sizeTexts[1].text), int.Parse(sizeTexts[2].text));
 
         public int GetGridType => gridTypeDropdown.value;
-        public int RandomSeed => int.Parse(randomSeedText.text);    
+        public int RandomSeed => int.Parse(randomSeedText.text);
+
+
+        public void ShowHideLog(bool newVal)
+        {
+            ShowLog = newVal;
+        }
 
         public void SetTime(float timeValue)
         {

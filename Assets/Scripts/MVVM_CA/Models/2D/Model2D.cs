@@ -134,7 +134,7 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
         }
         protected void NewCellBlank(Vector2Int cellIndex)
         {
-            Bacteria2D[cellIndex.x, cellIndex.y] = ConcToDivide / 2d;
+            Bacteria2D[cellIndex.x, cellIndex.y] = ConcToDivide * 0.5d;
             Vector2 cellPos = GetPos(cellIndex);
             TryBounds(cellPos);
             NewBiomassCells.Add(cellIndex);

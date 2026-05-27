@@ -51,7 +51,6 @@ namespace Assets.Scripts.MVVM_CA
         public float AhlDiffusionKoef { get; protected set; } = 0.764f;
         protected long rep = 0;
         protected double ConcToDivide = 1f;//0.001f;
-        protected double LifetimeCost = 0.000f;
         public double InitSubstrateCount { get; protected set; } = 0.5f;
         public double randomDIrectionDIvideProbability { get; protected set; } = 1.0;
 
@@ -206,7 +205,6 @@ namespace Assets.Scripts.MVVM_CA
             SpreadProbMax = pars[4];
             Ks = pars[5];
             Yxs = pars[6];
-            LifetimeCost = pars[7];
         }
         public void SetAhlPars(float[] ahlPars)
         {

@@ -282,7 +282,6 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
             }
 
             // 5) lifetime cost (важно: *DeltaTime, если LifetimeCost это "в единицу времени")
-            Bacteria2D[pos.x, pos.y] -= LifetimeCost * DeltaTime;
 
             // 6) death
             if (Bacteria2D[pos.x, pos.y] < AntiDieTh)

@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
@@ -47,8 +48,7 @@ namespace Assets.Scripts.MVVM_CA
         [SerializeField][Range(0.0001f, 0.01f)] private float PercentageOfUpdateAmount = 0.001f;
 
         [SerializeField] private int NutrGridSimp = 2;
-
-        [SerializeField] private double dx = 1e-6;
+        [SerializeField] private bool WriteLog = false;
 
         private int MaxSimTimeSeconds;
 
@@ -166,7 +166,7 @@ namespace Assets.Scripts.MVVM_CA
             });
             slopeMatcher = new CurveComparer(BuddrusCurves.Ahl, BuddrusCurves.Biomass);
             // сравниваем форму, а не абсолютную шкалу
-
+            MyLogger.InitLogger();
             slopeMatcher.Reset();
 
             // XavierResultsComparer.ShowExp();
@@ -247,6 +247,7 @@ namespace Assets.Scripts.MVVM_CA
             {
                 Debug.Log("Solo sim mode activated");
                 Model2D model = PrepareModelSolo();
+                Redraw(model);
                 StartCoroutine(RunSimul(model));
                 while (!SimulIsDone(model))
                 {
@@ -376,7 +377,7 @@ namespace Assets.Scripts.MVVM_CA
             
             slopeMatcher.AddFrame(hours, model.AverageAhl, model.Biomass2DVolume());
 
-            string modelInfoString = $"{localSimulationTime:F1}\t{hours:F3}\t{locIter}\t{dx}\t{model.BiomassCount}\t{model.Biomass2DVolume().ToString("F2")}\t" +
+            string modelInfoString = $"{localSimulationTime:F1}\t{hours:F3}\t{locIter}\t{model.BiomassCount}\t{model.Biomass2DVolume().ToString("F2")}\t" +
                 $"{model.BottomLayerCountRemain()}\t{(model.AverageNutrientRemain).ToString("F4")}\t{model.AverageAhl:F9}\t" +
                 $"{model.maxAhl:F9}\t{rough}\t" +
                 $"{coverage.ToString("F4")}\t{thickness.ToString("F4")}\t{spreadValue}\t{model.AHLthreshold}\t" +
@@ -396,6 +397,7 @@ namespace Assets.Scripts.MVVM_CA
             slopeMatcher.GetBestExperiment();
             modelInfoString += $"\t{slopeMatcher.BestExperimentName}\t{slopeMatcher.BestExperimentIndex}" +
             $"\t{slopeMatcher.BestBiomassError:F4}\t{slopeMatcher.BestAhlError:F4}\t{slopeMatcher.BestTotalError:F4}";
+            if (!WriteLog) return;
             MyLogger.WriteLog(modelInfoString);
             if (lastFrame)
             {
@@ -445,6 +447,8 @@ namespace Assets.Scripts.MVVM_CA
                 model = new Model2DWithAHL(AreaWidth, AreaHeight, InitNutrient, modelType, TimeStep, MaxThreadCount, RandomSeed);
 
             SetModelParametersWithUI(model);
+//            Debug.Log("Config initialCells = " + Config.initialCells);
+            Debug.Log("Model InoculationCount before init = " + model.InoculationCount);
             model.InitInoculate();
             slopeMatcher.AddFrame(0.0, model.AverageAhl, model.Biomass2DVolume() );
             if (!MultipleSimulations)
@@ -718,6 +722,11 @@ namespace Assets.Scripts.MVVM_CA
 
             if (MultipleSimulations)
                 progressUI.Show();
+        }
+
+        public void DoPicture()
+        {
+            Screenshot(Guid.NewGuid().ToString() + ".jpg");
         }
 
         // === ADD THIS: header + params log (call once per run) ===   Math.Log10

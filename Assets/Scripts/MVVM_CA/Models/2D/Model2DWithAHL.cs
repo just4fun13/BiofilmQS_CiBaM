@@ -236,6 +236,24 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
 
             InoculateInitialBacterialLayer();
         }
+        private void InoculateInitialBacterialLayer()
+        {
+            Debug.Log($"Inoc count = {InoculationCount}");
+            for (int i = 0; i < AreaWidth; i++)
+                bottomLayer.Add(i);
+
+            int h = (AreaWidth / (InoculationCount + 1)) + 1;
+
+
+            for (int i = h; i < AreaWidth; i += h)
+            {
+                NewCellBlank(new Vector2Int(i, 0));
+                bottomLayer.Remove(i);
+            }
+            BiomassCells2D.AddRange(NewBiomassCells);
+            NewBiomassCells.Clear();
+        }
+
         private void DiffuseSubstrateAndAHLImproved()
         {
             ahlDiffusionSolver.RefreshAndDoStep(Ahl2D, AhlDiffusionKoef);
@@ -374,22 +392,6 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
             double mult = RangeMultMin + (RangeMultMax - RangeMultMin) * h;
             int r = (int)Math.Round(baseRange * mult);
             return Math.Max(1, r);
-        }
-        private void InoculateInitialBacterialLayer()
-        {
-            for (int i = 0; i < AreaWidth; i++)
-                bottomLayer.Add(i);
-
-            int h = (AreaWidth / (InoculationCount + 1)) + 1;
-
-
-            for (int i = h; i < AreaWidth; i += h)
-            {
-                NewCellBlank(new Vector2Int(i, 0));
-                bottomLayer.Remove(i);
-            }
-            BiomassCells2D.AddRange(NewBiomassCells);
-            NewBiomassCells.Clear();
         }
         private bool IsLegalNutr(Vector2Int v) => v.x >= 0 && v.y >= 0 && v.x < NutrientAreaWidth && v.y < NutrientAreaHeight;
         public override Vector2 GetPos(Vector2Int coord)
@@ -785,14 +787,6 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
                 using (Measure(ProfileSection.ApplyConsumptionDeltas))
                     ApplyConsumptionDeltas();
 
-                using (Measure(ProfileSection.LifetimeCostPhase))
-                {
-                    Parallel.For(0, BiomassCells2D.Count, biomassParallelOptions, idx =>
-                    {
-                        ApplyLifetimeCost(BiomassCells2D[idx]);
-                    });
-                }
-
                 using (Measure(ProfileSection.DivisionPhase))
                 {
                     foreach (Vector2Int cellPos in BiomassCells2D)
@@ -889,10 +883,6 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
             BuildConsumptionDeltas();
             ApplyConsumptionDeltas();
 
-            Parallel.For(0, BiomassCells2D.Count, biomassParallelOptions, idx =>
-            {
-                ApplyLifetimeCost(BiomassCells2D[idx]);
-            });
 
             foreach (Vector2Int cellPos in BiomassCells2D)
                 if (CanCellDivide(cellPos))
@@ -903,15 +893,6 @@ namespace Assets.Scripts.MVVM_CA.Models._2D
         private bool CanCellDivide(Vector2Int cellPos)
         {
             return Bacteria2D[cellPos.x, cellPos.y] > ConcToDivide;
-        }
-        private void ApplyLifetimeCost(Vector2Int cellPos)
-        {
-            Bacteria2D[cellPos.x, cellPos.y] -= LifetimeCost * DeltaTime;
-
-            if (Bacteria2D[cellPos.x, cellPos.y] < 0)
-            {
-                Bacteria2D[cellPos.x, cellPos.y] = 0;
-            }
         }
         private void FinalizeStep()
         {
